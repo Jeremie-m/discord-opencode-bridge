@@ -21,7 +21,7 @@
     "ai",
     "terminal"
   ],
-  "author": "Jérémie MARIE (4uu.dev)",
+  "author": "Jérémie MARIE (jeremie-m.dev)",
   "license": "MIT",
   "dependencies": {
     "concurrently": "^9.2.1",

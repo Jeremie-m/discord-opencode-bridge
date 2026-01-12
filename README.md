@@ -334,10 +334,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Made with ❤️ by [Jérémie MARIE](https://4uu.dev)**
+**Made with ❤️ by [Jérémie MARIE](https://www.jeremie-m.dev/)**
 
 [![GitHub](https://img.shields.io/badge/GitHub-Jeremie--m-181717?style=for-the-badge&logo=github)](https://github.com/Jeremie-m)
-[![Website](https://img.shields.io/badge/Website-4uu.dev-00D4AA?style=for-the-badge&logo=safari&logoColor=white)](https://4uu.dev)
+[![Website](https://img.shields.io/badge/Website-jeremie--m.dev-00D4AA?style=for-the-badge&logo=safari&logoColor=white)](https://www.jeremie-m.dev/)
 
 ⭐ **Star this repo if you find it useful!** ⭐
 
