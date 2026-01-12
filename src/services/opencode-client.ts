@@ -129,6 +129,8 @@ export class OpenCodeClient {
     };
 
     try {
+      console.log(`[OpenCode] Sending message to session ${sessionId}...`);
+      
       const response = await this.request<OpenCodeMessageResponse>(
         `/session/${sessionId}/message`,
         {
@@ -137,6 +139,9 @@ export class OpenCodeClient {
         }
       );
 
+      console.log(`[OpenCode] Received response with ${response.parts?.length || 0} parts`);
+      console.log(`[OpenCode] Response info:`, response.info?.id, response.info?.finish);
+      
       // Extract text content from response parts
       return this.extractTextFromResponse(response);
     } catch (error) {
@@ -149,33 +154,27 @@ export class OpenCodeClient {
 
   /**
    * Extract readable text from OpenCode response
-   * Filters for 'text' type parts and concatenates their content
+   * DEBUG MODE: Shows all parts for analysis
    */
   private extractTextFromResponse(response: OpenCodeMessageResponse): string {
     if (!response.parts || !Array.isArray(response.parts)) {
-      // Fallback: try to find any text-like content
-      return JSON.stringify(response);
+      return `[DEBUG] No parts array:\n${JSON.stringify(response, null, 2)}`;
     }
 
-    // Extract text from parts with type 'text'
-    const textParts = response.parts
-      .filter((part) => part.type === 'text' && part.text)
-      .map((part) => part.text!);
-
-    if (textParts.length > 0) {
-      return textParts.join('\n\n');
+    // DEBUG: Show all parts with their types
+    const debugOutput: string[] = [];
+    debugOutput.push(`[DEBUG] Response has ${response.parts.length} parts:`);
+    
+    for (const part of response.parts) {
+      debugOutput.push(`\n--- Part type: ${part.type} ---`);
+      if (part.text) {
+        debugOutput.push(part.text);
+      } else {
+        debugOutput.push(`(no text, keys: ${Object.keys(part).join(', ')})`);
+      }
     }
 
-    // Fallback: if no text parts, try reasoning parts (for debugging)
-    const reasoningParts = response.parts
-      .filter((part) => part.type === 'reasoning' && part.text)
-      .map((part) => part.text!);
-
-    if (reasoningParts.length > 0) {
-      return `_[Reasoning]_\n${reasoningParts.join('\n')}`;
-    }
-
-    return '_OpenCode returned no text content._';
+    return debugOutput.join('\n');
   }
 
   /**
@@ -246,11 +245,25 @@ export class OpenCodeClient {
 
       // Handle empty responses (like DELETE)
       const contentType = response.headers.get('content-type');
+      console.log(`[OpenCode] Response content-type: ${contentType}`);
+      
       if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.log(`[OpenCode] Non-JSON response: ${text.substring(0, 200)}`);
         return {} as T;
       }
 
-      return response.json() as Promise<T>;
+      // Get raw text first to debug
+      const rawText = await response.text();
+      console.log(`[OpenCode] Raw response length: ${rawText.length}`);
+      console.log(`[OpenCode] Raw response preview: ${rawText.substring(0, 300)}...`);
+      
+      // Check if it's multiple JSON objects (NDJSON)
+      if (rawText.includes('}\n{') || rawText.includes('}{')) {
+        console.log(`[OpenCode] WARNING: Response contains multiple JSON objects!`);
+      }
+      
+      return JSON.parse(rawText) as T;
     } catch (error) {
       clearTimeout(timeoutId);
 

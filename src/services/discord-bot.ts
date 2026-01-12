@@ -41,6 +41,11 @@ export class DiscordBot {
   }
 
   private setupEventHandlers(): void {
+    console.log('[Discord] Setting up event handlers...');
+    
+    // Remove all existing listeners first (prevents accumulation with hot reload)
+    this.client.removeAllListeners();
+    
     // Bot ready
     this.client.once(Events.ClientReady, (client) => {
       console.log(`[Discord] Bot logged in as ${client.user.tag}`);
@@ -59,8 +64,23 @@ export class DiscordBot {
       this.handleChannelDelete(channel as NonThreadGuildBasedChannel);
     });
 
-    // Message received
+    // Message received - with deduplication
+    const processedMessages = new Set<string>();
     this.client.on(Events.MessageCreate, (message) => {
+      // Deduplicate - Discord sometimes sends same event twice
+      if (processedMessages.has(message.id)) {
+        console.log(`[Discord] DUPLICATE event for message ${message.id}, ignoring`);
+        return;
+      }
+      processedMessages.add(message.id);
+      
+      // Clean old message IDs (keep last 100)
+      if (processedMessages.size > 100) {
+        const firstId = processedMessages.values().next().value as string;
+        if (firstId) processedMessages.delete(firstId);
+      }
+      
+      console.log(`[Discord] MessageCreate event for message ${message.id}`);
       this.handleMessage(message);
     });
 
@@ -206,21 +226,25 @@ export class DiscordBot {
     }, 8000);
 
     try {
-      console.log(`[Discord] Processing message from ${message.author.tag}: ${message.content.substring(0, 50)}...`);
+      const requestId = Date.now();
+      console.log(`[Discord] [${requestId}] Processing message from ${message.author.tag}: ${message.content.substring(0, 50)}...`);
 
       // Send to OpenCode
+      console.log(`[Discord] [${requestId}] Calling sendMessage...`);
       const response = await this.config.sessionManager.sendMessage(
         channel.id,
         message.content
       );
+      console.log(`[Discord] [${requestId}] sendMessage returned, response length: ${response.length}`);
 
       // Clear typing indicator
       clearInterval(typingInterval);
 
       // Send response back to Discord
+      console.log(`[Discord] [${requestId}] Calling sendResponse...`);
       await this.sendResponse(channel, response, message);
 
-      console.log(`[Discord] Response sent to #${channel.name}`);
+      console.log(`[Discord] [${requestId}] Response sent to #${channel.name}`);
     } catch (error) {
       clearInterval(typingInterval);
 
