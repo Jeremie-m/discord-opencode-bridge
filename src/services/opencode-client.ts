@@ -19,12 +19,37 @@ export interface OpenCodeMessageRequest {
   parts: OpenCodeMessagePart[];
 }
 
-export interface OpenCodeMessageResponse {
+// Response part from OpenCode API
+export interface OpenCodeResponsePart {
   id: string;
-  sessionId: string;
-  role: string;
-  content: string;
-  createdAt: string;
+  sessionID: string;
+  messageID: string;
+  type: 'text' | 'step-start' | 'step-finish' | 'reasoning' | 'tool-call' | 'tool-result';
+  text?: string;
+  reason?: string;
+}
+
+// Full response from OpenCode API
+export interface OpenCodeMessageResponse {
+  info: {
+    id: string;
+    sessionID: string;
+    role: string;
+    time: {
+      created: number;
+      completed: number;
+    };
+    modelID: string;
+    providerID: string;
+    cost: number;
+    tokens: {
+      input: number;
+      output: number;
+      reasoning: number;
+    };
+    finish: string;
+  };
+  parts: OpenCodeResponsePart[];
 }
 
 export class OpenCodeClientError extends Error {
@@ -112,13 +137,45 @@ export class OpenCodeClient {
         }
       );
 
-      return response.content || JSON.stringify(response);
+      // Extract text content from response parts
+      return this.extractTextFromResponse(response);
     } catch (error) {
       if (error instanceof OpenCodeClientError) {
         throw error;
       }
       throw new OpenCodeClientError(`Failed to send message: ${error}`);
     }
+  }
+
+  /**
+   * Extract readable text from OpenCode response
+   * Filters for 'text' type parts and concatenates their content
+   */
+  private extractTextFromResponse(response: OpenCodeMessageResponse): string {
+    if (!response.parts || !Array.isArray(response.parts)) {
+      // Fallback: try to find any text-like content
+      return JSON.stringify(response);
+    }
+
+    // Extract text from parts with type 'text'
+    const textParts = response.parts
+      .filter((part) => part.type === 'text' && part.text)
+      .map((part) => part.text!);
+
+    if (textParts.length > 0) {
+      return textParts.join('\n\n');
+    }
+
+    // Fallback: if no text parts, try reasoning parts (for debugging)
+    const reasoningParts = response.parts
+      .filter((part) => part.type === 'reasoning' && part.text)
+      .map((part) => part.text!);
+
+    if (reasoningParts.length > 0) {
+      return `_[Reasoning]_\n${reasoningParts.join('\n')}`;
+    }
+
+    return '_OpenCode returned no text content._';
   }
 
   /**
