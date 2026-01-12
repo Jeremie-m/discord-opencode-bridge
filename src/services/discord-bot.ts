@@ -226,12 +226,24 @@ export class DiscordBot {
     }, 8000);
 
     try {
-      console.log(`[Discord] Processing: ${message.content.substring(0, 50)}...`);
+      // Parse message for commands
+      let messageContent = message.content;
+      let ultrawork = false;
 
-      // Send to OpenCode
+      // Check for /ultrawork command
+      if (messageContent.toLowerCase().startsWith('/ultrawork')) {
+        ultrawork = true;
+        messageContent = messageContent.replace(/^\/ultrawork\s*/i, '').trim();
+        await channel.send('🚀 **ULTRAWORK MODE ACTIVATED** - Maximum effort engaged!');
+      }
+
+      console.log(`[Discord] Processing${ultrawork ? ' (ULTRAWORK)' : ''}: ${messageContent.substring(0, 50)}...`);
+
+      // Send to OpenCode with Sisyphus agent by default
       const response = await this.config.sessionManager.sendMessage(
         channel.id,
-        message.content
+        messageContent,
+        { ultrawork }
       );
 
       // Clear typing indicator

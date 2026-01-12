@@ -17,6 +17,8 @@ export interface OpenCodeMessagePart {
 
 export interface OpenCodeMessageRequest {
   parts: OpenCodeMessagePart[];
+  agent?: string;
+  system?: string;
 }
 
 // Response part from OpenCode API
@@ -122,11 +124,26 @@ export class OpenCodeClient {
 
   /**
    * Send a message to an OpenCode session and get the response
+   * @param sessionId - The session ID
+   * @param message - The message content
+   * @param agent - Agent to use (default: "Sisyphus")
+   * @param systemPrompt - Optional system prompt override (for ultrawork mode etc.)
    */
-  async sendMessage(sessionId: string, message: string): Promise<string> {
+  async sendMessage(
+    sessionId: string, 
+    message: string,
+    agent: string = 'Sisyphus',
+    systemPrompt?: string
+  ): Promise<string> {
     const body: OpenCodeMessageRequest = {
       parts: [{ type: 'text', text: message }],
+      agent,
     };
+
+    // Add system prompt if provided (for ultrawork mode)
+    if (systemPrompt) {
+      body.system = systemPrompt;
+    }
 
     try {
       const response = await this.request<OpenCodeMessageResponse>(

@@ -82,8 +82,15 @@ export class SessionManager {
 
   /**
    * Send a message to OpenCode and get the response
+   * @param channelId - Discord channel ID
+   * @param message - Message content
+   * @param options - Optional settings (agent, ultrawork mode)
    */
-  async sendMessage(channelId: string, message: string): Promise<string> {
+  async sendMessage(
+    channelId: string, 
+    message: string,
+    options: { agent?: string; ultrawork?: boolean } = {}
+  ): Promise<string> {
     const session = this.sessions.get(channelId);
     if (!session) {
       throw new Error(`No session found for channel ${channelId}`);
@@ -96,8 +103,21 @@ export class SessionManager {
     session.isProcessing = true;
     session.lastActivity = new Date();
 
+    // Default agent is Sisyphus
+    const agent = options.agent || 'Sisyphus';
+    
+    // Ultrawork system prompt
+    const systemPrompt = options.ultrawork 
+      ? 'ULTRAWORK MODE ACTIVATED. Maximum effort, maximum detail, maximum thoroughness. Leave no stone unturned. Execute with extreme precision and completeness.'
+      : undefined;
+
     try {
-      const response = await this.openCodeClient.sendMessage(session.sessionId, message);
+      const response = await this.openCodeClient.sendMessage(
+        session.sessionId, 
+        message,
+        agent,
+        systemPrompt
+      );
       session.messageCount++;
       return response;
     } catch (error) {
@@ -107,7 +127,7 @@ export class SessionManager {
           console.log(`[SessionManager] Session ${session.sessionId} not found, recreating...`);
           this.sessions.delete(channelId);
           const newSession = await this.createSession(channelId, session.channelName, session.projectPath);
-          return this.openCodeClient.sendMessage(newSession.sessionId, message);
+          return this.openCodeClient.sendMessage(newSession.sessionId, message, agent, systemPrompt);
         }
       }
       throw error;
