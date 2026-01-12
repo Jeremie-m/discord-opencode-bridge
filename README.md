@@ -9,8 +9,8 @@ Control **OpenCode** from your phone via **Discord**. Create a new Discord chann
 - **Smart message chunking**: Long responses are split at sentence boundaries, preserving code blocks
 - **Real-time interaction**: Send prompts and receive responses instantly
 - **Auto-reconnect**: Sessions auto-recreate if OpenCode restarts
-- **Sisyphus AI personality**: Uses the Sisyphus agent by default for senior-engineer-level responses
-- **Ultrawork mode**: Prefix messages with `/ultrawork` for intensive, thorough analysis
+- **Sisyphus AI personality**: Uses the Sisyphus agent by default for senior-engineer-level responses (requires [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode))
+- **Ultrawork mode**: Prefix messages with `/ultrawork` for intensive, thorough analysis (requires [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode))
 
 ## 🏗️ Architecture
 
@@ -151,7 +151,7 @@ Bot: Here's the login function from src/auth/login.ts:
 - OpenCode remembers context from previous messages
 - Context is preserved even if you close Discord and come back
 
-### Ultrawork Mode
+### Ultrawork Mode (requires [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode))
 
 For complex tasks requiring thorough analysis, prefix your message with `/ultrawork`:
 
@@ -160,6 +160,8 @@ For complex tasks requiring thorough analysis, prefix your message with `/ultraw
 ```
 
 This activates intensive mode with deeper reasoning and more comprehensive responses.
+
+> **Note**: Sisyphus agent and Ultrawork mode require the [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode) plugin. Without it, the bridge will still work but use OpenCode's default agent.
 
 ## ⚙️ Configuration
 
