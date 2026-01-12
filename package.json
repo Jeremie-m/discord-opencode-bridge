@@ -1,6 +1,7 @@
 {
   "name": "discord-opencode-bridge",
   "version": "0.1.0",
+  "type": "module",
   "description": "Bridge between Discord and OpenCode - Control OpenCode from your phone via Discord",
   "main": "dist/index.js",
   "scripts": {
