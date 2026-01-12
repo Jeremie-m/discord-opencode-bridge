@@ -129,8 +129,6 @@ export class OpenCodeClient {
     };
 
     try {
-      console.log(`[OpenCode] Sending message to session ${sessionId}...`);
-      
       const response = await this.request<OpenCodeMessageResponse>(
         `/session/${sessionId}/message`,
         {
@@ -139,9 +137,6 @@ export class OpenCodeClient {
         }
       );
 
-      console.log(`[OpenCode] Received response with ${response.parts?.length || 0} parts`);
-      console.log(`[OpenCode] Response info:`, response.info?.id, response.info?.finish);
-      
       // Extract text content from response parts
       return this.extractTextFromResponse(response);
     } catch (error) {
@@ -154,27 +149,43 @@ export class OpenCodeClient {
 
   /**
    * Extract readable text from OpenCode response
-   * DEBUG MODE: Shows all parts for analysis
+   * Formats: reasoning as quote block, text as main response
    */
   private extractTextFromResponse(response: OpenCodeMessageResponse): string {
     if (!response.parts || !Array.isArray(response.parts)) {
-      return `[DEBUG] No parts array:\n${JSON.stringify(response, null, 2)}`;
+      return '_OpenCode returned an unexpected response format._';
     }
 
-    // DEBUG: Show all parts with their types
-    const debugOutput: string[] = [];
-    debugOutput.push(`[DEBUG] Response has ${response.parts.length} parts:`);
-    
-    for (const part of response.parts) {
-      debugOutput.push(`\n--- Part type: ${part.type} ---`);
-      if (part.text) {
-        debugOutput.push(part.text);
-      } else {
-        debugOutput.push(`(no text, keys: ${Object.keys(part).join(', ')})`);
-      }
+    const output: string[] = [];
+
+    // Extract reasoning (thinking) parts
+    const reasoningParts = response.parts
+      .filter((part) => part.type === 'reasoning' && part.text)
+      .map((part) => part.text!);
+
+    // Extract text (response) parts  
+    const textParts = response.parts
+      .filter((part) => part.type === 'text' && part.text)
+      .map((part) => part.text!);
+
+    // Format reasoning as a quote block (collapsible "thinking" style)
+    if (reasoningParts.length > 0) {
+      const reasoningText = reasoningParts.join('\n');
+      output.push(`> 💭 *Thinking...*`);
+      // Split reasoning into lines and prefix each with > for quote block
+      const reasoningLines = reasoningText.split('\n').map(line => `> ${line}`);
+      output.push(reasoningLines.join('\n'));
+      output.push(''); // Empty line separator
     }
 
-    return debugOutput.join('\n');
+    // Format text as the main response
+    if (textParts.length > 0) {
+      output.push(textParts.join('\n\n'));
+    } else if (reasoningParts.length === 0) {
+      output.push('_OpenCode returned no text content._');
+    }
+
+    return output.join('\n');
   }
 
   /**
@@ -245,25 +256,11 @@ export class OpenCodeClient {
 
       // Handle empty responses (like DELETE)
       const contentType = response.headers.get('content-type');
-      console.log(`[OpenCode] Response content-type: ${contentType}`);
-      
       if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.log(`[OpenCode] Non-JSON response: ${text.substring(0, 200)}`);
         return {} as T;
       }
 
-      // Get raw text first to debug
-      const rawText = await response.text();
-      console.log(`[OpenCode] Raw response length: ${rawText.length}`);
-      console.log(`[OpenCode] Raw response preview: ${rawText.substring(0, 300)}...`);
-      
-      // Check if it's multiple JSON objects (NDJSON)
-      if (rawText.includes('}\n{') || rawText.includes('}{')) {
-        console.log(`[OpenCode] WARNING: Response contains multiple JSON objects!`);
-      }
-      
-      return JSON.parse(rawText) as T;
+      return response.json() as Promise<T>;
     } catch (error) {
       clearTimeout(timeoutId);
 

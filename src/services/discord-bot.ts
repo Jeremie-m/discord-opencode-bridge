@@ -226,25 +226,19 @@ export class DiscordBot {
     }, 8000);
 
     try {
-      const requestId = Date.now();
-      console.log(`[Discord] [${requestId}] Processing message from ${message.author.tag}: ${message.content.substring(0, 50)}...`);
+      console.log(`[Discord] Processing: ${message.content.substring(0, 50)}...`);
 
       // Send to OpenCode
-      console.log(`[Discord] [${requestId}] Calling sendMessage...`);
       const response = await this.config.sessionManager.sendMessage(
         channel.id,
         message.content
       );
-      console.log(`[Discord] [${requestId}] sendMessage returned, response length: ${response.length}`);
 
       // Clear typing indicator
       clearInterval(typingInterval);
 
       // Send response back to Discord
-      console.log(`[Discord] [${requestId}] Calling sendResponse...`);
       await this.sendResponse(channel, response, message);
-
-      console.log(`[Discord] [${requestId}] Response sent to #${channel.name}`);
     } catch (error) {
       clearInterval(typingInterval);
 
