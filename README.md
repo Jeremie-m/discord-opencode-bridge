@@ -85,18 +85,19 @@ OPENCODE_SERVER_URL=http://localhost:4096
 OPENCODE_DEFAULT_PROJECT_PATH=D:/Dev
 ```
 
-### 5. Start OpenCode Server
-
-In a separate terminal:
-```bash
-opencode serve --port 4096
-```
-
-### 6. Start the Bridge
+### 5. Start Everything (One Command!)
 
 ```bash
-npm run dev
+npm run serve
 ```
+
+Or on Windows, just double-click `start.bat`
+
+This starts both:
+- OpenCode server on port 4096
+- Discord bridge
+
+You should see:
 
 You should see:
 ```
@@ -160,13 +161,19 @@ Bot: Here's the login function from src/auth/login.ts:
 ## 🛠️ Development
 
 ```bash
-# Run in development mode (with hot reload)
+# Start everything (OpenCode server + bridge) - RECOMMENDED
+npm run serve
+
+# Start everything (production build)
+npm run serve:prod
+
+# Run bridge only (if OpenCode server already running)
 npm run dev
 
 # Build for production
 npm run build
 
-# Run production build
+# Run bridge only (production build)
 npm start
 
 # Type check
