@@ -9,6 +9,8 @@ Control **OpenCode** from your phone via **Discord**. Create a new Discord chann
 - **Smart message chunking**: Long responses are split at sentence boundaries, preserving code blocks
 - **Real-time interaction**: Send prompts and receive responses instantly
 - **Auto-reconnect**: Sessions auto-recreate if OpenCode restarts
+- **Sisyphus AI personality**: Uses the Sisyphus agent by default for senior-engineer-level responses
+- **Ultrawork mode**: Prefix messages with `/ultrawork` for intensive, thorough analysis
 
 ## 🏗️ Architecture
 
@@ -101,14 +103,12 @@ This starts both:
 - Discord bridge
 
 You should see:
-
-You should see:
 ```
 ═══════════════════════════════════════════════════════
    ✅ Bot is now running!
 
-   Create a channel starting with "oc-" to start
-   Example: #oc-myproject
+   Create any channel to start chatting with OpenCode
+   (or set DISCORD_CHANNEL_PREFIX to filter channels)
 
    Press Ctrl+C to stop
 ═══════════════════════════════════════════════════════
@@ -119,8 +119,9 @@ You should see:
 
 ### Create a Session
 
-1. In your Discord server, create a new text channel starting with `oc-`
-   - Example: `#oc-mtt-manager` or `#oc-myproject`
+1. In your Discord server, create a new text channel
+   - If `DISCORD_CHANNEL_PREFIX` is set (e.g., `oc-`), only channels starting with that prefix will be monitored
+   - If empty (default), ALL channels are monitored
 2. The bot will automatically create an OpenCode session
 3. You'll see a confirmation message with the session ID
 
@@ -150,6 +151,16 @@ Bot: Here's the login function from src/auth/login.ts:
 - OpenCode remembers context from previous messages
 - Context is preserved even if you close Discord and come back
 
+### Ultrawork Mode
+
+For complex tasks requiring thorough analysis, prefix your message with `/ultrawork`:
+
+```
+/ultrawork Analyze the entire authentication flow and suggest security improvements
+```
+
+This activates intensive mode with deeper reasoning and more comprehensive responses.
+
 ## ⚙️ Configuration
 
 | Variable | Description | Required | Default |
@@ -167,8 +178,8 @@ Bot: Here's the login function from src/auth/login.ts:
 # Start everything (OpenCode server + bridge) - RECOMMENDED
 npm run serve
 
-# Start everything (production build)
-npm run serve:prod
+# Start everything (dev mode with hot-reload)
+npm run serve:dev
 
 # Run bridge only (if OpenCode server already running)
 npm run dev
@@ -204,8 +215,8 @@ discord-opencode-bridge/
 
 ### Bot doesn't respond to messages
 
-1. Check that the channel name starts with your configured prefix (default: `oc-`)
-2. Verify OpenCode server is running: `curl http://localhost:4096/session`
+1. If `DISCORD_CHANNEL_PREFIX` is set, check that the channel name starts with that prefix
+2. Verify OpenCode server is running: `curl http://127.0.0.1:4096/session`
 3. Check bot has `MESSAGE CONTENT INTENT` enabled in Discord Developer Portal
 
 ### "OpenCode server not available"
