@@ -78,11 +78,14 @@ cp .env.example .env
 
 Edit `.env`:
 ```env
+# Required
 DISCORD_TOKEN=your_bot_token_here
 DISCORD_GUILD_ID=your_guild_id_here
-DISCORD_CHANNEL_PREFIX=oc-
-OPENCODE_SERVER_URL=http://localhost:4096
-OPENCODE_DEFAULT_PROJECT_PATH=D:/Dev
+OPENCODE_DEFAULT_PROJECT_PATH=C:/path/to/your/projects
+
+# Optional
+DISCORD_CHANNEL_PREFIX=
+OPENCODE_SERVER_URL=http://127.0.0.1:4096
 ```
 
 ### 5. Start Everything (One Command!)
@@ -149,14 +152,14 @@ Bot: Here's the login function from src/auth/login.ts:
 
 ## ⚙️ Configuration
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DISCORD_TOKEN` | Bot token from Discord Developer Portal | (required) |
-| `DISCORD_GUILD_ID` | Your Discord server ID | (required) |
-| `DISCORD_CHANNEL_PREFIX` | Prefix for OpenCode channels | `oc-` |
-| `OPENCODE_SERVER_URL` | URL of OpenCode server | `http://localhost:4096` |
-| `OPENCODE_DEFAULT_PROJECT_PATH` | Default project path | `D:/Dev` |
-| `OPENCODE_TIMEOUT` | Request timeout (ms) | `300000` (5 min) |
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `DISCORD_TOKEN` | Bot token from Discord Developer Portal | ✅ Yes | - |
+| `DISCORD_GUILD_ID` | Your Discord server ID | ✅ Yes | - |
+| `OPENCODE_DEFAULT_PROJECT_PATH` | Working directory for OpenCode | ✅ Yes | - |
+| `DISCORD_CHANNEL_PREFIX` | Prefix filter for channels (empty = all) | No | `""` |
+| `OPENCODE_SERVER_URL` | URL of OpenCode server | No | `http://127.0.0.1:4096` |
+| `OPENCODE_TIMEOUT` | Request timeout (ms) | No | `300000` |
 
 ## 🛠️ Development
 
