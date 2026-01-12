@@ -25,7 +25,7 @@ export class DiscordBot {
 
   constructor(config: DiscordBotConfig) {
     this.config = {
-      channelPrefix: 'oc-', // Default prefix for OpenCode channels
+      channelPrefix: '', // No prefix by default - all channels handled
       ...config,
     };
 

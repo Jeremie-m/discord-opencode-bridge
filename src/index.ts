@@ -8,7 +8,7 @@ const config = {
   discord: {
     token: process.env.DISCORD_TOKEN!,
     guildId: process.env.DISCORD_GUILD_ID!,
-    channelPrefix: process.env.DISCORD_CHANNEL_PREFIX || 'oc-',
+    channelPrefix: process.env.DISCORD_CHANNEL_PREFIX || '',
   },
   openCode: {
     serverUrl: process.env.OPENCODE_SERVER_URL || 'http://localhost:4096',
@@ -37,7 +37,7 @@ async function main() {
 
   console.log('📋 Configuration:');
   console.log(`   Guild ID: ${config.discord.guildId}`);
-  console.log(`   Channel Prefix: "${config.discord.channelPrefix}"`);
+  console.log(`   Channel Prefix: ${config.discord.channelPrefix ? `"${config.discord.channelPrefix}"` : '(none - all channels)'}`);
   console.log(`   OpenCode URL: ${config.openCode.serverUrl}`);
   console.log(`   Default Project Path: ${config.openCode.defaultProjectPath}`);
   console.log('');
@@ -118,8 +118,8 @@ async function main() {
     console.log('═══════════════════════════════════════════════════════');
     console.log('   ✅ Bot is now running!                              ');
     console.log('');
-    console.log(`   Create a channel starting with "${config.discord.channelPrefix}" to start`);
-    console.log('   Example: #oc-myproject                              ');
+    console.log(`   Create a channel to start${config.discord.channelPrefix ? ` (prefix: "${config.discord.channelPrefix}")` : ' (any channel)'}`);
+    console.log(`   Example: #${config.discord.channelPrefix}myproject`);
     console.log('');
     console.log('   Press Ctrl+C to stop                                ');
     console.log('═══════════════════════════════════════════════════════');
