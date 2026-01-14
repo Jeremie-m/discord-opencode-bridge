@@ -69,8 +69,8 @@ export class OpenCodeClient {
   private baseUrl: string;
   private timeout: number;
 
-  constructor(baseUrl: string, timeout: number = 300000) {
-    // 5 min timeout for long responses
+  constructor(baseUrl: string, timeout: number = 600000) {
+    // 10 min timeout for long responses
     this.baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
     this.timeout = timeout;
   }

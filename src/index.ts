@@ -13,7 +13,7 @@ const config = {
   openCode: {
     serverUrl: process.env.OPENCODE_SERVER_URL || 'http://localhost:4096',
     defaultProjectPath: process.env.OPENCODE_DEFAULT_PROJECT_PATH || 'D:/Dev',
-    timeout: parseInt(process.env.OPENCODE_TIMEOUT || '300000', 10), // 5 min default
+    timeout: parseInt(process.env.OPENCODE_TIMEOUT || '600000', 10), // 10 min default
   },
   logLevel: process.env.LOG_LEVEL || 'info',
 };
